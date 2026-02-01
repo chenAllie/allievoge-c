@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allievoge-c 咖啡摊位收银系统</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            background-image: linear-gradient(135deg, #f9f7f7 0%, #dbe2ef 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #8b4513;
+        }
+        
+        h1 {
+            color: #5d4037;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: #8b4513;
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin-bottom: 5px;
+        }
+        
+        .free-tag {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .products-section {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .cart-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .section-title {
+            color: #5d4037;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-image {
+            height: 160px;
+            background-color: #f0e6d6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-name {
+            font-size: 1.3rem;
+            color: #5d4037;
+            margin-bottom: 8px;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            color: #8b4513;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .add-to-cart {
+            background-color: #8b4513;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .add-to-cart:hover {
+            background-color: #6d3410;
+        }
+        
+        .cart-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 500;
+        }
+        
+        .cart-item-price {
+            color: #8b4513;
+            font-weight: bold;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quantity-btn {
+            background-color: #f0f0f0;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .remove-btn {
+            background-color: #ffebee;
+            color: #c62828;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .cart-summary {
+            margin-top: 20px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .total-row {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #5d4037;
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #388e3c;
+        }
+        
+        .payment-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .payment-method {
+            flex: 1;
+            min-width: 150px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .payment-method.selected {
+            border-color: #4CAF50;
+            background-color: #f1f8e9;
+        }
+        
+        .payment-method h4 {
+            color: #5d4037;
+            margin-bottom: 10px;
+        }
+        
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .cash-payment {
+            color: #4CAF50;
+        }
+        
+        .card-payment {
+            color: #2196F3;
+        }
+        
+        .order-details {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .order-details.show {
+            display: block;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            color: #5d4037;
+            margin-bottom: 10px;
+        }
+        
+        .order-info {
+            margin-bottom: 10px;
+        }
+        
+        .status-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 1s ease;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Allievoge-c 咖啡摊位收银系统</h1>
+            <p class="tagline">简单实用 • 支持货到付款 • 完全免费</p>
+            <span class="free-tag">完全免费使用</span>
+        </header>
+        
+        <div class="main-content">
+            <section class="products-section">
+                <h2 class="section-title">选择咖啡</h2>
+                <div class="products-grid" id="productsGrid">
+                    <!-- 产品将由JavaScript动态生成 -->
+                </div>
+            </section>
+            
+            <section class="cart-section">
+                <h2 class="section-title">购物车</h2>
+                <div class="cart-container">
+                    <div class="cart-items" id="cartItems">
+                        <div class="empty-cart" id="emptyCart">购物车是空的</div>
+                        <!-- 购物车商品将在这里动态生成 -->
+                    </div>
+                    
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>商品数量:</span>
+                            <span id="itemCount">0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>商品总价:</span>
+                            <span>฿<span id="subtotalPrice">0</span></span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>应付总额:</span>
+                            <span>฿<span id="totalPrice">0</span></span>
+                        </div>
+                        
+                        <button class="checkout-btn" id="checkoutBtn" disabled>前往结账</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <section class="payment-section">
+            <h2 class="section-title">支付方式</h2>
+            <div class="payment-methods">
+                <div class="payment-method selected" id="cashPayment" onclick="selectPayment('cash')">
+                    <div class="payment-icon cash-payment">฿</div>
+                    <h4>货到付款</h4>
+                    <p>咖啡制作完成后现场支付</p>
+                </div>
+                <div class="payment-method" id="cardPayment" onclick="selectPayment('card')">
+                    <div class="payment-icon card-payment">💳</div>
+                    <h4>在线支付</h4>
+                    <p>使用信用卡/借记卡支付</p>
+                </div>
+            </div>
+            
+            <div class="order-details" id="orderDetails">
+                <h3>订单详情</h3>
+                <p class="order-id" id="orderId">订单号: #AWC-20230001</p>
+                <div class="order-info" id="orderItems">
+                    <!-- 订单项目将在这里动态生成 -->
+                </div>
+                <div class="summary-row">
+                    <span>支付方式:</span>
+                    <span id="paymentMethodText">货到付款</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>应付总额:</span>
+                    <span>฿<span id="orderTotalPrice">0</span></span>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="status-progress" id="statusProgress"></div>
+                </div>
+                <p id="orderStatus">订单已提交，正在准备您的咖啡...</p>
+                
+                <button class="checkout-btn" onclick="completeOrder()" id="completeOrderBtn">完成订单</button>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Allievoge-c 咖啡摊位收银系统 - 免费实用，不啰嗦，支持货到付款</p>
+            <p>© 2023 Allievoge-c Coffee Stall. 本系统免费使用。</p>
+        </footer>
+    </div>
+
+    <script>
+        // 咖啡产品数据
+        const products = [
+            { id: 1, name: "拿铁咖啡", price: 30, image: "coffee1.jpg", description: "经典意式拿铁，香浓顺滑" },
+            { id: 2, name: "卡布奇诺", price: 32, image: "coffee2.jpg", description: "丰富奶泡，咖啡香气浓郁" },
+            { id: 3, name: "美式咖啡", price: 25, image: "coffee3.jpg", description: "纯粹黑咖啡，提神醒脑" },
+            { id: 4, name: "摩卡咖啡", price: 35, image: "coffee4.jpg", description: "巧克力与咖啡的完美融合" },
+            { id: 5, name: "焦糖玛奇朵", price: 38, image: "coffee5.jpg", description: "香草与焦糖的甜美组合" },
+            { id: 6, name: "冰拿铁", price: 35, image: "coffee6.jpg", description: "冰爽口感，夏日首选" }
+        ];
+
+        // 购物车数据
+        let cart = [];
+        let selectedPayment = 'cash';
+        let orderInProgress = false;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            updateCartDisplay();
+            
+            // 结账按钮事件
+            document.getElementById('checkoutBtn').addEventListener('click', checkout);
+            
+            // 默认选择货到付款
+            selectPayment('cash');
+        });
+
+        // 渲染产品列表
+        function renderProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI2YwZTZkNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNWQ0MDM3Ij4kTmFtZTwvdGV4dD48L3N2Zz4='.replace('$Name', encodeURIComponent(product.name))">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-price">฿${product.price}</p>
+                        <p class="product-description">${product.description}</p>
+                        <button class="add-to-cart" onclick="addToCart(${product.id})">加入购物车</button>
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+            });
+        }
+
+        // 添加到购物车
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            // 检查是否已在购物车中
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartDisplay();
+            
+            // 显示添加成功的反馈
+            showNotification(`${product.name} 已添加到购物车`);
+        }
+
+        // 更新购物车显示
+        function updateCartDisplay() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const emptyCartDiv = document.getElementById('emptyCart');
+            const itemCountElement = document.getElementById('itemCount');
+            const subtotalPriceElement = document.getElementById('subtotalPrice');
+            const totalPriceElement = document.getElementById('totalPrice');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            
+            // 计算购物车总价和总数量
+            let itemCount = 0;
+            let subtotal = 0;
+            
+            cart.forEach(item => {
+                itemCount += item.quantity;
+                subtotal += item.price * item.quantity;
+            });
+            
+            // 更新显示
+            itemCountElement.textContent = itemCount;
+            subtotalPriceElement.textContent = subtotal;
+            totalPriceElement.textContent = subtotal;
+            
+            // 如果有商品，隐藏"空购物车"消息，启用结账按钮
+            if (cart.length > 0) {
+                emptyCartDiv.style.display = 'none';
+                checkoutBtn.disabled = false;
+                
+                // 渲染购物车商品
+                cartItemsContainer.innerHTML = '';
+                cart.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    
+                    cartItem.innerHTML = `
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">฿${item.price} × ${item.quantity}</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">移除</button>
+                        </div>
+                    `;
+                    
+                    cartItemsContainer.appendChild(cartItem);
+                });
+            } else {
+                emptyCartDiv.style.display = 'block';
+                checkoutBtn.disabled = true;
+            }
+        }
+
+        // 更新商品数量
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (!item) return;
+            
+            item.quantity += change;
+            
+            if (item.quantity <= 0) {
+                removeFromCart(productId);
+            } else {
+                updateCartDisplay();
+            }
+        }
+
+        // 从购物车移除商品
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+            
+            // 显示移除反馈
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                showNotification(`${product.name} 已从购物车移除`);
+            }
+        }
+
+        // 选择支付方式
+        function selectPayment(method) {
+            selectedPayment = method;
+            
+            // 更新UI显示选中的支付方式
+            document.getElementById('cashPayment').classList.remove('selected');
+            document.getElementById('cardPayment').classList.remove('selected');
+            
+            if (method === 'cash') {
+                document.getElementById('cashPayment').classList.add('selected');
+                document.getElementById('paymentMethodText').textContent = '货到付款';
+            } else {
+                document.getElementById('cardPayment').classList.add('selected');
+                document.getElementById('paymentMethodText').textContent = '在线支付';
+            }
+        }
+
+        // 结账
+        function checkout() {
+            if (cart.length === 0) return;
+            
+            orderInProgress = true;
+            
+            // 显示订单详情
+            const orderDetails = document.getElementById('orderDetails');
+            orderDetails.classList.add('show');
+            
+            // 生成订单号
+            const orderId = 'AWC-' + Date.now().toString().slice(-8);
+            document.getElementById('orderId').textContent = `订单号: #${orderId}`;
+            
+            // 更新订单商品列表
+            const orderItemsContainer = document.getElementById('orderItems');
+            orderItemsContainer.innerHTML = '';
+            
+            let orderTotal = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                orderTotal += itemTotal;
+                
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-info';
+                orderItem.textContent = `${item.name} × ${item.quantity} = ฿${itemTotal}`;
+                orderItemsContainer.appendChild(orderItem);
+            });
+            
+            document.getElementById('orderTotalPrice').textContent = orderTotal;
+            
+            // 更新支付方式显示
+            document.getElementById('paymentMethodText').textContent = 
+                selectedPayment === 'cash' ? '货到付款' : '在线支付';
+            
+            // 滚动到订单详情
+            orderDetails.scrollIntoView({ behavior: 'smooth' });
+            
+            // 模拟订单处理进度
+            simulateOrderProgress();
+        }
+
+        // 模拟订单处理进度
+        function simulateOrderProgress() {
+            const progressBar = document.getElementById('statusProgress');
+            const statusText = document.getElementById('orderStatus');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    statusText.textContent = selectedPayment === 'cash' 
+                        ? '咖啡已准备好！请现场支付并取货。' 
+                        : '支付成功！咖啡制作中，请稍候取货。';
+                    
+                    // 如果是货到付款，更新按钮文本
+                    if (selectedPayment === 'cash') {
+                        document.getElementById('completeOrderBtn').textContent = '已取货完成订单';
+                    }
+                } else if (progress >= 70) {
+                    statusText.textContent = '咖啡制作中...';
+                } else if (progress >= 40) {
+                    statusText.textContent = selectedPayment === 'cash' 
+                        ? '准备制作咖啡...' 
+                        : '支付处理中...';
+                }
+            }, 500);
+        }
+
+        // 完成订单
+        function completeOrder() {
+            // 显示完成通知
+            showNotification('订单已完成！感谢您的惠顾。');
+            
+            // 重置购物车
+            cart = [];
+            updateCartDisplay();
+            
+            // 隐藏订单详情
+            document.getElementById('orderDetails').classList.remove('show');
+            
+            // 重置进度条
+            document.getElementById('statusProgress').style.width = '0%';
+            document.getElementById('orderStatus').textContent = '订单已提交，正在准备您的咖啡...';
+            document.getElementById('completeOrderBtn').textContent = '完成订单';
+            
+            orderInProgress = false;
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 1000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // 3秒后移除通知
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
